@@ -1,13 +1,355 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Global Connect Walk Challenge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            float: 'float 3s ease-in-out infinite',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-5px)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel" data-type="module">
+    const { useState, useEffect, useMemo, useRef } = React;
 
+    const SearchIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>;
+    const GlobeIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>;
+    const TrophyIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>;
+    const InfoIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>;
+    const XIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>;
+    const CrownIcon = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/></svg>;
+
+    const challengeData = [
+      { id: 1, name: "인재개발팀", type: "HQ", steps: 450000, currentSpaceId: 46 },
+      { id: 2, name: "육류사업팀", type: "HQ", steps: 320000, currentSpaceId: 33 },
+      { id: 3, name: "판재1팀", type: "HQ", steps: 150000, currentSpaceId: 16 },
+      { id: 4, name: "에너지컨버전스팀", type: "HQ", steps: 520000, currentSpaceId: 51 },
+      { id: 5, name: "감사팀", type: "HQ", steps: 80000, currentSpaceId: 9 },
+      { id: 6, name: "휴먼밸류팀", type: "HQ", steps: 210000, currentSpaceId: 22 },
+      { id: 7, name: "3PL팀", type: "HQ", steps: 340000, currentSpaceId: 35 },
+      { id: 8, name: "법무팀", type: "HQ", steps: 190000, currentSpaceId: 20 },
+      { id: 9, name: "승용2팀", type: "HQ", steps: 410000, currentSpaceId: 42 },
+      { id: 10, name: "정보기술팀", type: "HQ", steps: 275000, currentSpaceId: 42 },
+      { id: 11, name: "두바이(DUB)", type: "Overseas", steps: 410000, currentSpaceId: 42 },
+      { id: 12, name: "방콕(BKK)", type: "Overseas", steps: 290000, currentSpaceId: 30 },
+      { id: 13, name: "테헤란(THR)", type: "Overseas", steps: 380000, currentSpaceId: 39 },
+      { id: 14, name: "시드니(SYD)", type: "Overseas", steps: 120000, currentSpaceId: 13 },
+      { id: 15, name: "아쉬하바드(ASB)", type: "Overseas", steps: 490000, currentSpaceId: 50 },
+      { id: 16, name: "밀라노(MIL)", type: "Overseas", steps: 250000, currentSpaceId: 26 },
+      { id: 17, name: "모스크바(MOW)", type: "Overseas", steps: 310000, currentSpaceId: 33 },
+      { id: 18, name: "프랑크푸르트(FFT)", type: "Overseas", steps: 180000, currentSpaceId: 16 },
+      { id: 19, name: "LA물류법인(HPC)", type: "Overseas", steps: 440000, currentSpaceId: 46 },
+      { id: 20, name: "도쿄(TKY)", type: "Overseas", steps: 360000, currentSpaceId: 37 },
+    ];
+
+    const LOCATIONS = [
+      { id: 1, country: "South Korea", name: "HQ", code: "kr" }, { id: 2, country: "U.S.A", name: "LAX", code: "us" },
+      { id: 3, country: "U.S.A", name: "HOU", code: "us" }, { id: 4, country: "U.S.A", name: "HPC", code: "us" },
+      { id: 5, country: "Canada", name: "TRT", code: "ca" }, { id: 6, country: "Canada", name: "VCR", code: "ca" },
+      { id: 7, country: "Mexico", name: "MEX", code: "mx" }, { id: 8, country: "Colombia", name: "BGT", code: "co" },
+      { id: 9, country: "Chile", name: "STG", code: "cl" }, { id: 10, country: "Chile", name: "HST", code: "cl" },
+      { id: 11, country: "Germany", name: "FFT", code: "de" }, { id: 12, country: "Germany", name: "HFT", code: "de" },
+      { id: 13, country: "Germany", name: "HOE", code: "de" }, { id: 14, country: "Poland", name: "FFT(WAW)", code: "pl" },
+      { id: 15, country: "UK", name: "HSM", code: "gb" }, { id: 16, country: "Italy", name: "MIL", code: "it" },
+      { id: 17, country: "Türkiye", name: "IST", code: "tr" }, { id: 18, country: "Ukraine", name: "KYV", code: "ua" },
+      { id: 19, country: "Russia", name: "MOW", code: "ru" }, { id: 20, country: "Uzbekistan", name: "TAS", code: "uz" },
+      { id: 21, country: "Kazakhstan", name: "ALM", code: "kz" }, { id: 22, country: "Turkmenistan", name: "ASB", code: "tm" },
+      { id: 23, country: "UAE", name: "DUB", code: "ae" }, { id: 24, country: "Iran", name: "THR", code: "ir" },
+      { id: 25, country: "Pakistan", name: "KRA", code: "pk" }, { id: 26, country: "Egypt", name: "CRO", code: "eg" },
+      { id: 27, country: "Algeria", name: "ALG", code: "dz" }, { id: 28, country: "South Africa", name: "JHB", code: "za" },
+      { id: 29, country: "Singapore", name: "SGP", code: "sg" }, { id: 30, country: "Singapore", name: "HDF", code: "sg" },
+      { id: 31, country: "Singapore", name: "HOA", code: "sg" }, { id: 32, country: "Indonesia", name: "JKT", code: "id" },
+      { id: 33, country: "Indonesia", name: "HID", code: "id" }, { id: 34, country: "Malaysia", name: "KUL", code: "my" },
+      { id: 35, country: "Thailand", name: "BKK", code: "th" }, { id: 36, country: "Philippines", name: "MNL", code: "ph" },
+      { id: 37, country: "Vietnam", name: "HCM", code: "vn" }, { id: 38, country: "Vietnam", name: "HCM(HNO)", code: "vn" },
+      { id: 39, country: "Vietnam", name: "HOL", code: "vn" }, { id: 40, country: "Cambodia", name: "HAG", code: "kh" },
+      { id: 41, country: "Cambodia", name: "HPG", code: "kh" }, { id: 42, country: "India", name: "NDL", code: "in" },
+      { id: 43, country: "India", name: "POS-HD", code: "in" }, { id: 44, country: "Australia", name: "SYD", code: "au" },
+      { id: 45, country: "Australia", name: "HFA", code: "au" }, { id: 46, country: "Australia", name: "HBM", code: "au" },
+      { id: 47, country: "China", name: "SHA", code: "cn" }, { id: 48, country: "China", name: "SHL", code: "cn" },
+      { id: 49, country: "China", name: "HGZ", code: "cn" }, { id: 50, country: "Japan", name: "TKY", code: "jp" },
+      { id: 51, country: "Japan", name: "OSK", code: "jp" },
+    ];
+
+    const LocationCard = ({ loc, index, teamCount, onClick, cardRef }) => {
+      const isStart = index === 0;
+      const isEnd = index === LOCATIONS.length - 1;
+
+      return (
+        <div ref={cardRef} className="relative flex-shrink-0 z-10">
+          <div onClick={onClick} className="relative animate-float cursor-pointer group" style={{ animationDelay: `${(index % 5) * 0.2}s` }}>
+            <div className="relative w-20 h-24 md:w-24 md:h-28 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden border border-white/10 bg-slate-900">
+              <img src={`https://flagcdn.com/w320/${loc.code}.png`} alt={loc.country} className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen group-hover:opacity-60 group-hover:scale-110 transition-all duration-700" referrerPolicy="no-referrer" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#0f172a]/60 to-transparent shadow-[inset_0_0_15px_rgba(0,0,0,0.5)] group-hover:from-[#0f172a]/80 transition-all duration-500"></div>
+              <div className="relative h-full flex flex-col items-center justify-end pb-2 md:pb-3 z-10">
+                <span className="text-[9px] md:text-[10px] font-bold text-cyan-400 mb-0.5 tracking-wider">{isStart ? "START" : isEnd ? "FINISH" : `STAGE ${index}`}</span>
+                <span className="text-xs md:text-sm font-black text-white leading-tight drop-shadow-md px-1 text-center">{loc.country}</span>
+                <span className="text-[8px] md:text-[9px] text-slate-300 text-center leading-tight drop-shadow-md px-1 mt-0.5">{loc.name}</span>
+              </div>
+            </div>
+            {teamCount > 0 && (
+              <div className="absolute -top-2 -right-2 bg-gradient-to-br from-red-500 to-pink-600 text-white text-[10px] md:text-xs font-black w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center shadow-[0_2px_10px_rgba(239,68,68,0.6)] border-2 border-[#0f172a] z-50">
+                {teamCount}
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    };
+
+    function App() {
+      const [selectedLocation, setSelectedLocation] = useState(null);
+      const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+      const [linePoints, setLinePoints] = useState([]);
+      
+      const containerRef = useRef(null);
+      const cardRefs = useRef([]);
+
+      const calculatePoints = () => {
+        if (!containerRef.current) return;
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const newPoints = [];
+        
+        for (let i = 0; i < LOCATIONS.length; i++) {
+          const card = cardRefs.current[i];
+          if (card) {
+            const rect = card.getBoundingClientRect();
+            newPoints.push({
+              x: rect.left - containerRect.left + rect.width / 2,
+              y: rect.top - containerRect.top + rect.height / 2
+            });
+          }
+        }
+        setLinePoints(newPoints);
+      };
+
+      useEffect(() => {
+        const handleResize = () => {
+          setWindowWidth(window.innerWidth);
+          calculatePoints();
+        };
+        
+        window.addEventListener('resize', handleResize);
+        
+        // Initial calculation and fallback for image loading
+        calculatePoints();
+        const timer1 = setTimeout(calculatePoints, 100);
+        const timer2 = setTimeout(calculatePoints, 500);
+        
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          clearTimeout(timer1);
+          clearTimeout(timer2);
+        };
+      }, [windowWidth]);
+
+      const isMobile = windowWidth < 768;
+      const itemsPerRow = isMobile ? 3 : 5;
+
+      const chunks = useMemo(() => {
+        const result = [];
+        for (let i = 0; i < LOCATIONS.length; i += itemsPerRow) {
+          result.push(LOCATIONS.slice(i, i + itemsPerRow));
+        }
+        return result;
+      }, [itemsPerRow]);
+
+      const getTeamsAtLocation = (locationId) => challengeData.filter(team => team.currentSpaceId === locationId);
+      const rankedHQ = useMemo(() => challengeData.filter(t => t.type === 'HQ').sort((a, b) => b.steps - a.steps).slice(0, 10), []);
+      const rankedOverseas = useMemo(() => challengeData.filter(t => t.type === 'Overseas').sort((a, b) => b.steps - a.steps).slice(0, 10), []);
+
+      return (
+        <div className="min-h-screen bg-[#020617] font-sans text-slate-200 relative pb-10">
+          <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#0f172a] via-[#020617] to-black pointer-events-none"></div>
+          <div className="fixed inset-0 opacity-[0.07] pointer-events-none bg-center bg-no-repeat bg-cover mix-blend-screen" style={{ backgroundImage: `url("https://upload.wikimedia.org/wikipedia/commons/c/c4/World_map_%28blue_dots%29.svg")` }}></div>
+          <div className="fixed top-[-200px] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-blue-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+          <div className="fixed bottom-[-200px] right-[-200px] w-[600px] h-[600px] bg-cyan-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+          <header className="sticky top-0 z-50 pt-10 md:pt-12 pb-5 md:pb-6 px-4 md:px-6 bg-[#020617]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-start justify-between mb-4 md:mb-5">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+                    Global Connect<br/>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400">Walk Challenge</span>
+                  </h1>
+                  <p className="text-[11px] md:text-xs text-slate-400 mt-2 font-medium">본사에서 출발해 그룹 글로벌 거점을 연결하는 보드형 걷기 챌린지</p>
+                </div>
+              </div>
+              <div className="relative group mt-2">
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-2xl blur-md opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                <div className="relative flex items-center bg-[#0f172a]/90 border border-white/10 rounded-2xl px-4 py-3 md:py-3.5 shadow-inner">
+                  <SearchIcon className="w-4 h-4 md:w-5 md:h-5 text-cyan-400 mr-3" />
+                  <input type="text" placeholder="팀명을 검색하세요..." className="bg-transparent border-none outline-none text-white placeholder-slate-500 w-full text-sm md:text-base font-medium" readOnly />
+                </div>
+              </div>
+            </div>
+          </header>
+
+          <main className="relative z-10 max-w-4xl mx-auto px-2 py-8 md:py-12 flex flex-col items-center overflow-hidden">
+            <div className="relative flex flex-col w-full items-center" ref={containerRef}>
+              
+              {/* SVG Path Layer */}
+              <svg className="absolute inset-0 pointer-events-none z-0" style={{ width: '100%', height: '100%' }}>
+                {linePoints.length > 1 && (
+                  <polyline
+                    points={linePoints.map(p => `${p.x},${p.y}`).join(' ')}
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="4"
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    className="drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
+                  />
+                )}
+              </svg>
+
+              {chunks.map((chunk, chunkIndex) => {
+                const isEven = chunkIndex % 2 === 0;
+                return (
+                  <div key={chunkIndex} className={`flex justify-center w-full gap-x-4 md:gap-x-8 mb-12 md:mb-16 ${!isEven ? 'flex-row-reverse' : ''}`}>
+                    {chunk.map((loc, i) => {
+                      const globalIndex = chunkIndex * itemsPerRow + i;
+                      const teamsAtLocation = getTeamsAtLocation(loc.id);
+
+                      return (
+                        <LocationCard 
+                          key={loc.id}
+                          loc={loc} 
+                          index={globalIndex} 
+                          teamCount={teamsAtLocation.length} 
+                          onClick={() => setSelectedLocation(loc)}
+                          cardRef={(el) => { cardRefs.current[globalIndex] = el; }}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </main>
+
+          <section className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12 relative z-10">
+            <div className="flex flex-col md:flex-row gap-8 md:gap-6 lg:gap-10">
+              <div className="flex-1 bg-slate-800/40 border border-white/5 rounded-2xl p-4 md:p-6 backdrop-blur-sm">
+                <h2 className="text-lg md:text-xl font-black text-white mb-4 md:mb-6 flex items-center gap-2"><TrophyIcon className="w-5 h-5 text-yellow-400" />본사 랭킹</h2>
+                <div className="flex flex-col gap-2.5">
+                  {rankedHQ.map((team, idx) => (
+                    <div key={team.id} className="flex items-center justify-between bg-slate-800/60 border border-white/5 p-3 md:p-3.5 rounded-xl hover:bg-slate-700/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 md:w-7 md:h-7 flex items-center justify-center font-black text-xs md:text-sm rounded-full ${idx === 0 ? 'bg-yellow-400/20 text-yellow-400' : idx === 1 ? 'bg-gray-300/20 text-gray-300' : idx === 2 ? 'bg-amber-600/20 text-amber-500' : 'bg-slate-700 text-slate-400'}`}>
+                          {idx < 3 ? <CrownIcon className="w-3 h-3 md:w-4 md:h-4" /> : idx + 1}
+                        </div>
+                        <span className="text-slate-100 font-bold text-sm md:text-base">{team.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="block text-cyan-400 font-black text-sm md:text-base">{team.steps.toLocaleString()} 걸음</span>
+                        <span className="block text-slate-500 text-[9px] md:text-[10px] uppercase tracking-wider mt-0.5">{team.currentSpaceId === 1 ? "START" : team.currentSpaceId === LOCATIONS.length ? "FINISH" : `STAGE ${team.currentSpaceId - 1}`}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex-1 bg-slate-800/40 border border-white/5 rounded-2xl p-4 md:p-6 backdrop-blur-sm">
+                <h2 className="text-lg md:text-xl font-black text-white mb-4 md:mb-6 flex items-center gap-2"><GlobeIcon className="w-5 h-5 text-blue-400" />해외 랭킹</h2>
+                <div className="flex flex-col gap-2.5">
+                  {rankedOverseas.map((team, idx) => (
+                    <div key={team.id} className="flex items-center justify-between bg-slate-800/60 border border-white/5 p-3 md:p-3.5 rounded-xl hover:bg-slate-700/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-6 h-6 md:w-7 md:h-7 flex items-center justify-center font-black text-xs md:text-sm rounded-full ${idx === 0 ? 'bg-yellow-400/20 text-yellow-400' : idx === 1 ? 'bg-gray-300/20 text-gray-300' : idx === 2 ? 'bg-amber-600/20 text-amber-500' : 'bg-slate-700 text-slate-400'}`}>
+                          {idx < 3 ? <CrownIcon className="w-3 h-3 md:w-4 md:h-4" /> : idx + 1}
+                        </div>
+                        <span className="text-slate-100 font-bold text-sm md:text-base">{team.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="block text-cyan-400 font-black text-sm md:text-base">{team.steps.toLocaleString()} 걸음</span>
+                        <span className="block text-slate-500 text-[9px] md:text-[10px] uppercase tracking-wider mt-0.5">{team.currentSpaceId === 1 ? "START" : team.currentSpaceId === LOCATIONS.length ? "FINISH" : `STAGE ${team.currentSpaceId - 1}`}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="max-w-4xl mx-auto px-4 md:px-6 pb-12 relative z-10">
+            <div className="bg-gradient-to-br from-slate-800/80 to-slate-900/80 border border-white/10 rounded-2xl p-4 md:p-6 shadow-xl backdrop-blur-md">
+              <div className="flex items-start gap-3">
+                <div className="bg-cyan-500/20 p-2 rounded-lg shrink-0 mt-0.5 md:mt-0"><InfoIcon className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" /></div>
+                <ul className="text-[11px] md:text-xs text-slate-300 space-y-2 md:space-y-2.5 leading-relaxed">
+                  <li className="flex items-start gap-2"><span className="text-cyan-500 mt-0.5">•</span>지점명을 클릭하면 해당 칸의 팀/지점 목록 확인 가능</li>
+                  <li className="flex items-start gap-2"><span className="text-cyan-500 mt-0.5">•</span>검색창에서 팀/지점 이름을 입력하여 위치 확인 가능</li>
+                  <li className="flex items-start gap-2"><span className="text-cyan-500 mt-0.5">•</span>팀/지점명을 클릭하면 평균 걸음수와 이동 칸 수 확인 가능</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {selectedLocation && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-5 bg-[#020617]/80 backdrop-blur-md transition-opacity" onClick={() => setSelectedLocation(null)}>
+              <div className="bg-slate-900 border border-white/10 rounded-2xl md:rounded-3xl w-[95%] max-w-md overflow-hidden shadow-2xl transform transition-all flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+                <div className="relative h-32 md:h-36 shrink-0 bg-slate-900 flex flex-col items-center justify-center overflow-hidden">
+                  <img src={`https://flagcdn.com/w320/${selectedLocation.code}.png`} alt={selectedLocation.country} className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen" referrerPolicy="no-referrer" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+                  <button className="absolute top-3 right-3 md:top-4 md:right-4 text-slate-400 hover:text-white z-10 bg-black/20 p-1.5 rounded-full backdrop-blur-sm transition-colors" onClick={() => setSelectedLocation(null)}><XIcon className="w-5 h-5" /></button>
+                  <div className="relative z-10 text-center mt-4">
+                    <span className="inline-block bg-cyan-500/20 text-cyan-400 font-black text-[10px] px-2 py-0.5 rounded-full tracking-widest mb-1.5 md:mb-2 border border-cyan-500/30">
+                      {selectedLocation.id === 1 ? "START" : selectedLocation.id === LOCATIONS.length ? "FINISH" : `STAGE ${selectedLocation.id - 1}`}
+                    </span>
+                    <h2 className="text-xl md:text-2xl font-black text-white drop-shadow-lg">{selectedLocation.country}</h2>
+                    <p className="text-slate-300 text-xs md:text-sm font-medium mt-0.5">{selectedLocation.name}</p>
+                  </div>
+                </div>
+                <div className="p-4 md:p-5 overflow-y-auto bg-slate-900 flex-1">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-slate-400 text-[11px] md:text-xs font-bold uppercase tracking-wider">현재 위치한 팀</h3>
+                    <span className="bg-cyan-500/20 text-cyan-400 px-2.5 py-1 rounded-full text-[10px] md:text-xs font-black border border-cyan-500/30">{getTeamsAtLocation(selectedLocation.id).length}팀</span>
+                  </div>
+                  <div className="space-y-2 md:space-y-2.5">
+                    {getTeamsAtLocation(selectedLocation.id).length > 0 ? (
+                      getTeamsAtLocation(selectedLocation.id).sort((a, b) => b.steps - a.steps).map((team, idx) => (
+                        <div key={team.id} className="bg-slate-800/50 border border-white/5 p-3 md:p-3.5 rounded-xl flex items-center justify-between hover:bg-slate-800 transition-colors cursor-pointer">
+                          <div className="flex items-center gap-2.5 md:gap-3">
+                            <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-slate-700 text-slate-300 flex items-center justify-center text-[10px] md:text-xs font-black shrink-0">{idx + 1}</div>
+                            <span className="text-slate-200 font-bold text-xs md:text-sm truncate max-w-[120px] sm:max-w-[160px]">{team.name}</span>
+                          </div>
+                          <div className="text-right shrink-0"><span className="block text-cyan-400 font-black text-xs md:text-sm">{team.steps.toLocaleString()} 걸음</span></div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 md:py-10 text-slate-500 text-xs md:text-sm bg-slate-800/30 rounded-xl border border-white/5 border-dashed">현재 이 지점에 위치한 팀이 없습니다.</div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
