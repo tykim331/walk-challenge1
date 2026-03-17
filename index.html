@@ -247,10 +247,29 @@
                 </div>
               </div>
               {searchedTeam && (
-                <div className="mt-4 bg-slate-800/80 border border-cyan-500/30 rounded-xl px-4 py-3 text-center shadow-[0_0_15px_rgba(6,182,212,0.2)] backdrop-blur-md animate-fade-in">
-                  <p className="text-sm md:text-base font-bold text-white">
-                    🏁 <span className="text-cyan-400">[{searchedTeam.name}]</span> 최종 목적지까지 <span className="text-yellow-400">{Math.floor(((searchedTeam.currentSpaceId - 1) / 50) * 100)}%</span> 진행 완료! (Stage {searchedTeam.currentSpaceId - 1} / 50)
-                  </p>
+                <div className="mt-4 bg-[#0f172a]/90 border border-white/10 rounded-2xl p-4 md:p-5 shadow-[0_0_20px_rgba(0,163,141,0.15)] backdrop-blur-xl animate-fade-in w-full">
+                  <div className="text-center md:text-left mb-3">
+                    <h3 className="text-sm md:text-base font-bold text-white tracking-wide">
+                      <span className="text-[#00A38D]">[{searchedTeam.name}]</span>
+                      <span className="mx-2">-</span>
+                      Stage {searchedTeam.currentSpaceId - 1} of 50 
+                      <span className="text-[#00A38D] ml-2">({Math.floor(((searchedTeam.currentSpaceId - 1) / 50) * 100)}% Completed)</span>
+                    </h3>
+                  </div>
+                  
+                  <div className="relative w-full h-3 md:h-4 bg-[#0A1C30] rounded-full overflow-hidden shadow-inner">
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-[#00A38D] rounded-full transition-all duration-1000 ease-out"
+                      style={{ width: `${Math.floor(((searchedTeam.currentSpaceId - 1) / 50) * 100)}%` }}
+                    >
+                      <div className="absolute inset-0 bg-white/20 w-full h-full" style={{ backgroundImage: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)' }}></div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between items-center mt-2 text-[10px] md:text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    <span>🏁 Start</span>
+                    <span>🏆 Final</span>
+                  </div>
                 </div>
               )}
             </div>
