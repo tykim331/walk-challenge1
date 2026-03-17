@@ -11,11 +11,16 @@
         extend: {
           animation: {
             float: 'float 3s ease-in-out infinite',
+            'fade-in': 'fadeIn 0.5s ease-out forwards',
           },
           keyframes: {
             float: {
               '0%, 100%': { transform: 'translateY(0)' },
               '50%': { transform: 'translateY(-5px)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0', transform: 'translateY(-10px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
             }
           }
         }
@@ -96,12 +101,12 @@
       { id: 51, country: "Japan", name: "OSK", code: "jp" },
     ];
 
-    const LocationCard = ({ loc, index, teamCount, onClick, cardRef }) => {
+    const LocationCard = ({ loc, index, teamCount, onClick, cardRef, isDimmed }) => {
       const isStart = index === 0;
       const isEnd = index === LOCATIONS.length - 1;
 
       return (
-        <div ref={cardRef} className="relative flex-shrink-0 z-10">
+        <div ref={cardRef} className={`relative flex-shrink-0 z-10 transition-all duration-500 ${isDimmed ? 'grayscale opacity-40' : ''}`}>
           <div onClick={onClick} className="relative animate-float cursor-pointer group" style={{ animationDelay: `${(index % 5) * 0.2}s` }}>
             <div className="relative w-20 h-24 md:w-24 md:h-28 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden border border-white/10 bg-slate-900">
               <img src={`https://flagcdn.com/w320/${loc.code}.png`} alt={loc.country} className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-screen group-hover:opacity-60 group-hover:scale-110 transition-all duration-700" referrerPolicy="no-referrer" />
@@ -126,9 +131,32 @@
       const [selectedLocation, setSelectedLocation] = useState(null);
       const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
       const [linePoints, setLinePoints] = useState([]);
+      const [searchQuery, setSearchQuery] = useState('');
+      const [searchedTeam, setSearchedTeam] = useState(null);
       
       const containerRef = useRef(null);
       const cardRefs = useRef([]);
+
+      const handleSearch = (e) => {
+        if (e.key === 'Enter' || e.type === 'click') {
+          if (!searchQuery.trim()) {
+            setSearchedTeam(null);
+            return;
+          }
+          const foundTeam = challengeData.find(t => t.name.toLowerCase().includes(searchQuery.toLowerCase()));
+          if (foundTeam) {
+            setSearchedTeam(foundTeam);
+            const targetIndex = foundTeam.currentSpaceId - 1;
+            const targetCard = cardRefs.current[targetIndex];
+            if (targetCard) {
+              targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          } else {
+            alert('검색된 팀이 없습니다.');
+            setSearchedTeam(null);
+          }
+        }
+      };
 
       const calculatePoints = () => {
         if (!containerRef.current) return;
@@ -204,10 +232,27 @@
               <div className="relative group mt-2">
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-2xl blur-md opacity-20 group-hover:opacity-40 transition duration-500"></div>
                 <div className="relative flex items-center bg-[#0f172a]/90 border border-white/10 rounded-2xl px-4 py-3 md:py-3.5 shadow-inner">
-                  <SearchIcon className="w-4 h-4 md:w-5 md:h-5 text-cyan-400 mr-3" />
-                  <input type="text" placeholder="팀명을 검색하세요..." className="bg-transparent border-none outline-none text-white placeholder-slate-500 w-full text-sm md:text-base font-medium" readOnly />
+                  <SearchIcon className="w-4 h-4 md:w-5 md:h-5 text-cyan-400 mr-3 cursor-pointer" onClick={handleSearch} />
+                  <input 
+                    type="text" 
+                    placeholder="팀명을 검색하세요..." 
+                    className="bg-transparent border-none outline-none text-white placeholder-slate-500 w-full text-sm md:text-base font-medium" 
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (e.target.value === '') setSearchedTeam(null);
+                    }}
+                    onKeyDown={handleSearch}
+                  />
                 </div>
               </div>
+              {searchedTeam && (
+                <div className="mt-4 bg-slate-800/80 border border-cyan-500/30 rounded-xl px-4 py-3 text-center shadow-[0_0_15px_rgba(6,182,212,0.2)] backdrop-blur-md animate-fade-in">
+                  <p className="text-sm md:text-base font-bold text-white">
+                    🏁 <span className="text-cyan-400">[{searchedTeam.name}]</span> 최종 목적지까지 <span className="text-yellow-400">{Math.floor(((searchedTeam.currentSpaceId - 1) / 50) * 100)}%</span> 진행 완료! (Stage {searchedTeam.currentSpaceId - 1} / 50)
+                  </p>
+                </div>
+              )}
             </div>
           </header>
 
@@ -218,8 +263,8 @@
               <svg className="absolute inset-0 pointer-events-none z-0" style={{ width: '100%', height: '100%' }}>
                 <defs>
                   <linearGradient id="pathGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#00A38D" />
-                    <stop offset="100%" stopColor="#008272" />
+                    <stop offset="0%" stopColor="#38bdf8" />
+                    <stop offset="100%" stopColor="#0284c7" />
                   </linearGradient>
                 </defs>
                 {linePoints.length > 1 && (
@@ -233,7 +278,7 @@
                     strokeDasharray="15, 10"
                     style={{
                       animation: 'dashFlow 0.8s linear infinite',
-                      filter: 'drop-shadow(0 0 5px #00ffff)'
+                      filter: 'drop-shadow(0 0 5px #38bdf8)'
                     }}
                   />
                 )}
@@ -246,6 +291,7 @@
                     {chunk.map((loc, i) => {
                       const globalIndex = chunkIndex * itemsPerRow + i;
                       const teamsAtLocation = getTeamsAtLocation(loc.id);
+                      const isDimmed = searchedTeam && loc.id > searchedTeam.currentSpaceId;
 
                       return (
                         <LocationCard 
@@ -255,6 +301,7 @@
                           teamCount={teamsAtLocation.length} 
                           onClick={() => setSelectedLocation(loc)}
                           cardRef={(el) => { cardRefs.current[globalIndex] = el; }}
+                          isDimmed={isDimmed}
                         />
                       );
                     })}
